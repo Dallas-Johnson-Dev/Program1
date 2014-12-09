@@ -1,0 +1,373 @@
+Listing LL.cpp...
+
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include "LL.h"
+#include "LLN.h"
+using namespace std;
+
+LL::LL () {
+
+	//cout << "Welcome to the constructor" << endl;
+	head = NULL;
+}
+
+LL::~LL () {
+
+	//cout << "Depart from mine presence, thou fool" << endl;
+	delete head;
+}
+
+void LL::addfront (string S) {
+
+	head = new LLN (S,head);
+}
+
+void LL::addback (string S) {
+
+	if (head==NULL) head = new LLN (S,NULL);
+	else head->addback (S);
+	//LLN *P = head, *Q = NULL;
+	//for (;P!=NULL;Q=P,P=P->getnext());
+	////if (Q != NULL) Q->setnext (new LLN (S,NULL));
+	////else head->setnext (new LLN (S,NULL));
+	//(Q?Q:head)->setnext (new LLN  (S,NULL));
+}
+
+void LL::print () {
+
+	//for (LLN *P = head; P != NULL; P=P->getnext())
+	//	P->print ();
+	if (head != NULL) head->printall ();
+	cout << endl;
+}
+
+void LL::addinorder (string S) {
+
+	if (!head) head = new LLN (S,NULL);
+	else head = head->addinorder_0 (S);
+
+	//LLN *P = head, *Q = NULL;
+	//for (;P && P->gets() < S; Q=P,P=P->getnext());
+	//if (Q) Q->setnext (new LLN (S,P));
+	//else head = new LLN (S,P);
+
+	//if (!head || head->gets() > S)
+	//	head = new LLN (S,head);
+	//else
+	//	head->addinorder (S);
+}
+
+void LL::remove (string S) {
+
+	if (!head) return;
+	head = head->remove (S);
+}
+
+void LL::remove_0 (string S) {
+
+	if (!head) return;
+	//if (head->gets () == S) {
+	//	LLN *t = head->getnext ();
+	//	head->setnext (NULL);
+	//	delete head;
+	//	head = t;
+	//} else
+
+	head->remove_0 (S,NULL,this);
+}
+
+void LL::sethead (LLN *h) {head = h;}
+
+void LL::addbook (string S) {
+	if (head) head->addbook(S);
+
+}
+
+
+Listing LL.h...
+
+#ifndef _LL_
+#define _LL_
+
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include "LLN.h"
+using namespace std;
+
+class LLN;
+class LL {
+private:
+	LLN *head;
+public:
+	LL (); //Constructor
+	~LL (); //Destructor
+	void addfront (string S);
+	void addback (string S);
+	void print ();
+	void addinorder (string S);
+	void remove (string S);
+	void remove_0 (string S);
+	void sethead (LLN *h);
+	void removelast (string S);
+	void addbook(string S);
+	void removebook(string S);
+};
+
+#endif
+
+
+Listing LLN.cpp...
+
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include "LLN.h"
+#include "LL.h"
+using namespace std;
+
+LLN::LLN (string S, LLN * n) {
+
+	s = S;
+	next = n;
+}
+
+LLN::~LLN () {
+
+	delete next;
+}
+
+string LLN::gets () {return s;}
+
+LLN * LLN::getnext () {return next;}
+
+void LLN::print() {cout << s << endl;}
+
+void LLN::printall () {  //prints all the nodes in the list starting with me in reverse order
+
+	print ();
+	if (next != NULL) next->printall ();
+
+}
+
+void LLN::addback (string S) {
+
+	if (next==NULL) next = new LLN (S,NULL);
+	else next->addback (S);
+}
+
+void LLN::setnext (LLN *n) {next = n;}
+
+void LLN::addinorder (string S) {
+
+	if (!next || next->gets() > S)
+		next = new LLN (S,next);
+	else
+		next->addinorder (S);
+
+}
+
+LLN * LLN::addinorder_0 (string S) { //returns the "new head" of the portion of the linked list beginning with this
+
+	if (s > S) return new LLN (S,this);
+	if (!next) {next = new LLN (S,NULL); return this;}
+	next = next->addinorder_0 (S);
+	return this;
+}
+
+LLN * LLN::remove (string S) { //removes the first instance of S, returns the new head
+
+	if (s==S) {
+		LLN *t = next;
+		next = NULL;
+		delete this;
+		return t;
+	}
+	if (next) next = next->remove (S);
+	return this;
+}
+
+void LLN::remove_0 (string S, LLN *prev, LL *l) {
+
+	if (s==S) {
+		if (prev) prev->setnext (next);
+		else l->sethead (next);
+	    next = NULL;
+		delete this;
+	} else
+		if (next) next->remove_0 (S,this,l);
+}
+
+bool LLN::removelast (string S, LLN *prev, LL *l) { //returns whether something was deleted
+
+	bool del = false;
+	if (next) del = next->removelast (S,this,l);
+	if (del) return true;
+	if (s==S) {
+		if (prev) prev->setnext (next);
+		else l->sethead (next);
+	    next = NULL;
+		delete this;
+		return true;
+	}
+	return false;
+}
+
+void LLN::addbook(string S) {
+	if (s==S) {
+	return;
+	} else if (next != NULL) {
+	next -> addbook(S);
+	} else {
+	next = new LLN(S,NULL);
+	}
+}
+
+
+Listing LLN.h...
+
+#ifndef _LLN_
+#define _LLN_
+
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include "LL.h"
+using namespace std;
+
+class LL;
+class LLN {
+private:
+	string s;
+	LLN * next;
+
+public:
+	LLN (string S, LLN * n);
+	~LLN();
+	string gets (); //accessor
+    LLN * getnext (); //getter
+	void setnext (LLN *n); //setter OR mutator
+	void print ();
+	void printall ();
+	void addback (string S);
+	void addinorder (string S);
+	LLN * addinorder_0 (string S);
+	LLN * remove (string S);
+	void remove_0 (string S, LLN *prev, LL *l);
+	bool removelast (string S, LLN *prev, LL *l);
+	void addbook(string S);
+
+};
+
+#endif
+
+
+Listing Recursitivity.h...
+
+//this is frustrating...
+//Dallas Johnson
+//Recursive linked list editing (book titles)
+//CS201
+
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include "LL.h"
+
+using namespace std;
+
+LL * booklist;
+
+int main(int argc, char** argv);
+
+
+Listing Recursivitiy.cpp...
+
+//this is frustrating...
+//Dallas Johnson
+//Recursive linked list editing (book titles)
+//CS201
+
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include "LL.h"
+
+using namespace std;
+
+int main(int argc, char** argv)
+{
+//Your autograder may flag this as infinite looping. This is how this program will run if we have an exit command.
+	LL* booklist = new LL();
+	bool running = true;
+//Command parsing system similar to how my IRC bot handled this.
+//commands: Add, Remove, Exit, Help (help will just show the previous three. Adding this for aesthetic value.
+	while (running) {
+	string command = "";
+	cout << "Enter a command (type help for more information): ";
+	getline(cin, command);
+	if (command == "add") {
+        //just get this working before I have to split strings.
+        string title = "";
+        getline(cin, title);
+        booklist -> addback(title);
+	cout << "Current book(s): " << endl;
+	booklist -> print();
+        }
+    else if (command == "remove")
+        {
+            string title = "";
+            getline(cin, title);
+            booklist->remove_0(title);
+	    cout << "Current book(s): " << endl;
+	    booklist -> print();
+        }
+    else if (command == "exit")
+        {
+            cout << "goodbye!" << endl;
+            running = false;
+        }
+	} // if somehow the while(true) loop ends up escaping to the lines below, we'll kill the main method as usual.
+	delete booklist;
+	return 0;
+}
+
+
+Microsoft Windows [Version 6.1.7601]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\Users\apoe\Desktop\Grading Folder>cppcompileall PG4.exe
+Microsoft Windows [Version 6.1.7601]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\Users\apoe\Desktop\Grading Folder>"C:\Program Files\Microsoft Visual Studio 10.0\VC\vcvarsall.bat" x86
+Setting environment for using Microsoft Visual Studio 2010 x86 tools.
+
+C:\Users\apoe\Desktop\Grading Folder>cl /Tp "LL.cpp" /Tp "LLN.cpp" /Tp "Recursivitiy.cpp" /O2 /EHsc /W2 /Za /link /OUT:PG4.exe
+LL.cpp
+LLN.cpp
+Recursivitiy.cpp
+Generating Code...
+Microsoft (R) Incremental Linker Version 10.00.40219.01
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+/out:LL.exe
+/OUT:PG4.exe
+LL.obj
+LLN.obj
+Recursivitiy.obj
+
+C:\Users\apoe\Desktop\Grading Folder>Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 16.00.40219.01 for 80x86
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+C:\Users\apoe\Desktop\Grading Folder>PG4.exe < "C:\Grading\Classes\CS201-01-14F\PG4\PG4-1.in"
+Enter a command (type help for more information): Enter a command (type help for more information): Enter a command (type help for more information): Enter a command (type help for more information): Enter a command (type help for more information): Enter a command (type help for more information): Enter a command (type help for more information):
+
+Infinite loops here.
+
+5/50.
+
+Fix by Friday 31 October 2014.
